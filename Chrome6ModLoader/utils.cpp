@@ -59,6 +59,17 @@ uintptr_t FindPattern(HMODULE hModule, const char* signature)
     return 0;
 }
 
+//rewrite soon
+void PatchMemory(uintptr_t address, const std::vector<uint8_t>& bytes)
+{
+    DWORD oldProtect;
+    VirtualProtect((LPVOID)address, bytes.size(), PAGE_EXECUTE_READWRITE, &oldProtect);
+
+    memcpy((void*)address, bytes.data(), bytes.size());
+
+    VirtualProtect((LPVOID)address, bytes.size(), oldProtect, &oldProtect);
+}
+
 void InitConsole()
 {
     AllocConsole();

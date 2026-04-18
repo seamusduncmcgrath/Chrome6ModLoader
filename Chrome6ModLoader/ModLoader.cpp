@@ -17,7 +17,7 @@ bool g_RPacksLoaded = false;
 
 fs_add_source_t fs_add_source_original = nullptr;
 fs_check_zip_crc_t fs_check_zip_crc_original = nullptr;
-LoadDataPack_t LoadDataPack_original = nullptr;
+PakLoader_Load PakLoader_Load_original = nullptr;
 AreDataAuthenticated_t AreDataAuthenticated_original = nullptr;
 calc_file_crc_t calc_file_crc_original = nullptr;
 LogPrintCallback g_originalLogCallback = nullptr;
@@ -63,7 +63,7 @@ void LoadPaks()
     //loads paks that where missing from load order txt
     for (const auto& entry : fs::directory_iterator(modDir))
     {
-        if (entry.path().extension() == ".pak")
+        if (entry.path().extension() == ".pak" ".mpak")
         {
             std::string decodedPakFlags = DecodeAddSourceFlags(pakFlags); //maybe better way to do this
             std::string fileName = entry.path().filename().string();
@@ -99,7 +99,7 @@ void LoadCustomRPacks(void* pRuntime)
 
             printf("[Mod Loader] Loading RPACK: %s\n", filename.c_str());
 
-            bool result = LoadDataPack_original(pRuntime, cleanName.c_str(), nullptr,
+            bool result = PakLoader_Load_original(pRuntime, cleanName.c_str(), nullptr,
                 EIsGlobalPack::Yes, EIsContentPack::No, EUseCachePartition::Yes, EIsCrossLevelPack::Yes, (EPackKind)0);
 
             if (!result)
@@ -126,7 +126,7 @@ bool __fastcall fs_add_source_detour(const char* path, unsigned int flags)
     return result;
 }
 
-bool __fastcall LoadDataPack_Detour(
+bool __fastcall PakLoader_Load_Detour(
     void* pRuntime, const char* path, void** outPack,
     EIsGlobalPack isGlobal,
     EIsContentPack isContent,
@@ -138,7 +138,7 @@ bool __fastcall LoadDataPack_Detour(
         g_RPacksLoaded = true;
         LoadCustomRPacks(pRuntime);
     }
-  return LoadDataPack_original(pRuntime, path, outPack, isGlobal, isContent, isCache, isCross, kind);
+  return PakLoader_Load_original(pRuntime, path, outPack, isGlobal, isContent, isCache, isCross, kind);
 }
 
 
@@ -171,15 +171,28 @@ bool InitModLoader()
 
     MH_Initialize();
 
-    //swap to pattern scan or something soon
-    uintptr_t rpackAddr = FindPattern(hEngine, "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 55 41 54 41 56 48 8D 6C 24 D9 48 81 EC 90 00 00 00");
+    uintptr_t patchJumpAddr = FindPattern(hEngine, "85 C0 74 10 FF C7 48 83 C6 08 83 FF 02");
+    if (patchJumpAddr)
+    {
+        uintptr_t targetByte = patchJumpAddr + 2;
 
-    if (MH_CreateHook((LPVOID)rpackAddr, &LoadDataPack_Detour, (LPVOID*)&LoadDataPack_original) == MH_OK)
+        std::vector<uint8_t> patchBytes = { 0xEB };
+
+        PatchMemory(targetByte, patchBytes);
+        printf("[Mod Loader] Global .rpacz support enabled! (Patched 74 -> EB at 0x%p)\n", (void*)targetByte);
+    }
+    else
+    {
+        printf("Failed to find .rpacz jump pattern!\n");
+    }
+
+    uintptr_t rpackAddr = FindPattern(hEngine, "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 55 41 54 41 56 48 8D 6C 24 D9 48 81 EC 90 00 00 00");
+    if (MH_CreateHook((LPVOID)rpackAddr, &PakLoader_Load_Detour, (LPVOID*)&PakLoader_Load_original) == MH_OK)
     {
         printf("[Mod Loader] Found PackLoader::Load at: 0x%p\n", (void*)rpackAddr);
         MH_EnableHook((LPVOID)rpackAddr);
     }
-    else { printf("Failed to hook LoadDataPack!\n"); }
+    else { printf("Failed to hook PakLoader_Load!\n"); }
 
     void* addSourceAddr = GetProcAddress(hFs, "?add_source@fs@@YA_NPEBDW4ENUM@FFSAddSourceFlags@@@Z");
     void* crcCheckAddr = GetProcAddress(hFs, "?check_zip_crc@izipped_buffer_file@fs@@UEAA_NXZ");

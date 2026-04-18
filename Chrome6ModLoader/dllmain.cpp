@@ -24,6 +24,7 @@ DWORD WINAPI InitThread(LPVOID)
     return 0;
 }
 
+//prob better way to do this
 std::string DecodeAddSourceFlags(unsigned int flags)
 {
     if (flags == 0) return "0 (NONE/GENERIC)";

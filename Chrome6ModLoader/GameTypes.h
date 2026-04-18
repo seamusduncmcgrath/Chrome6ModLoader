@@ -19,7 +19,7 @@ enum class EPackKind : int {};
 
 using fs_add_source_t = bool(__fastcall*)(const char* path, unsigned int flags); // do flags for enum
 using fs_check_zip_crc_t = bool(__fastcall*)(void* _this); // use to remove CRC check
-using LoadDataPack_t = bool(__fastcall*)(void* pRuntime, const char* path, void** outPack, EIsGlobalPack, EIsContentPack, EUseCachePartition, EIsCrossLevelPack, EPackKind); // rpack loading
+using PakLoader_Load = bool(__fastcall*)(void* pRuntime, const char* path, void** outPack, EIsGlobalPack, EIsContentPack, EUseCachePartition, EIsCrossLevelPack, EPackKind); // rpack loading
 using AreDataAuthenticated_t = bool(__fastcall*)(void* _this); // other crc checks
 using calc_file_crc_t = bool(__cdecl*)(void* args);
 using LogPrintCallback = void(__cdecl*)(int, const char*, const char*);

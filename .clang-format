@@ -1,0 +1,73 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+ColumnLimit: 0
+
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+AccessModifierOffset: -4
+NamespaceIndentation: All
+IndentCaseLabels: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterExternBlock: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterControlStatement: false
+  AfterClass: false
+  AfterStruct: false
+  AfterEnum: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+
+IndentExternBlock: Indent
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortBlocksOnASingleLine: Empty
+AllowShortEnumsOnASingleLine: false
+
+AlwaysBreakTemplateDeclarations: Yes
+
+BreakConstructorInitializers: AfterColon
+BreakConstructorInitializersBeforeComma: false
+
+BinPackParameters: true
+BinPackArguments: true
+
+AlignOperands: true
+AlignTrailingComments: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeRangeBasedForLoopColon: false
+
+SpacesInAngles: false
+SpacesInConditionalStatement: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpaceInEmptyParentheses: false
+
+SeparateDefinitionBlocks: Leave
+MaxEmptyLinesToKeep: 1
+
+InsertNewlineAtEOF: true
+
+IncludeCategories:
+  - Regex: '^<.*'
+    Priority: 1
+  - Regex: '^".*'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+
+IncludeIsMainRegex: '([-_](test|unittest))?$'

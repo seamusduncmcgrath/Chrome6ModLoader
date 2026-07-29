@@ -1,7 +1,0 @@
-<Solution>
-  <Configurations>
-    <Platform Name="x64" />
-    <Platform Name="x86" />
-  </Configurations>
-  <Project Path="Chrome6ModLoader/Chrome6ModLoader.vcxproj" Id="db704c6b-b5d6-4f22-92ca-9154870bab5a" />
-</Solution>

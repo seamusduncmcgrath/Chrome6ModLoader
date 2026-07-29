@@ -20,7 +20,7 @@ XInputGetState_t oXInputGetState = nullptr;
 XInputSetState_t oXInputSetState = nullptr;
 HMODULE hOriginalDll = nullptr;
 
-// 3. Load the real system DLL safely
+//load the real system DLL safely
 void loadOriginalXinput() {
     char sysPath[MAX_PATH];
     GetSystemDirectoryA(sysPath, MAX_PATH);
@@ -35,18 +35,21 @@ void loadOriginalXinput() {
 }
 
 extern "C" DWORD WINAPI Proxy_XInputGetCapabilities(DWORD dwUserIndex, DWORD dwFlags, XINPUT_CAPABILITIES* pCapabilities) {
-    if (!oXInputGetCapabilities) return ERROR_DEVICE_NOT_CONNECTED;
+    if (!oXInputGetCapabilities)
+        return ERROR_DEVICE_NOT_CONNECTED;
     return oXInputGetCapabilities(dwUserIndex, dwFlags, pCapabilities);
 }
 
 extern "C" DWORD WINAPI Proxy_XInputGetState(DWORD dwUserIndex, XINPUT_STATE* pState) {
-    if (!oXInputGetState) return ERROR_DEVICE_NOT_CONNECTED;
+    if (!oXInputGetState)
+        return ERROR_DEVICE_NOT_CONNECTED;
     DWORD result = oXInputGetState(dwUserIndex, pState);
     return result;
 }
 
 extern "C" DWORD WINAPI Proxy_XInputSetState(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration) {
-    if (!oXInputSetState) return ERROR_DEVICE_NOT_CONNECTED;
+    if (!oXInputSetState)
+        return ERROR_DEVICE_NOT_CONNECTED;
     return oXInputSetState(dwUserIndex, pVibration);
 }
 
@@ -64,6 +67,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID)
     if (reason == DLL_PROCESS_ATTACH) {
         DisableThreadLibraryCalls(hModule);
         loadOriginalXinput();
+        //while( !::IsDebuggerPresent() )
+            //::Sleep( 100 );
         if (isDebug()) {
             utils::InitConsole();
         }
